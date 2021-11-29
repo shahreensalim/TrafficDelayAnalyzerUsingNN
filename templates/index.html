@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+  <script src="https://d3js.org/d3-selection-multi.v1.js"></script>
+
+
+</head>
+<body>
+  <div class="container-bg">
+      <nav class="navbar navbar-custom navbar-expand-sm fixed-top">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="navbar-brand" href="#">Traffic and Delay Analyzer</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="container-fluid" >
+      <div class="row" id='info' style='font-size:12px'>
+        Network Topology: Scale Free<br>
+        Other info...
+      </div>
+      <div class="row" id='main'>
+
+          <div class='col-lg-3'id= 'traffic-graph'>
+            <div class="row" id='graph-header'>
+              Traffic Graph
+            </div>
+            <div class="row" id='main-graph'>
+            </div>
+          </div>
+          <div class='col-lg-3'id='traffic-table' >
+            <div class="row" id='table-header'>
+              Traffic Matrix
+            </div>
+            <div class="row" id='main-table'>
+            </div>
+          </div>
+        <div class='col-lg-3'id= 'delay-graph'>
+          <div class="row" id='graph-header'>
+            Delay Graph
+          </div>
+          <div class="row" id='main-graph'>
+          </div>
+        </div>
+        <div class='col-lg-3'id='delay-table' >
+          <div class="row" id='table-header'>
+            Delay Matrix
+          </div>
+          <div class="row" id='main-table'>
+          </div>
+        </div>
+    </div>
+      </div>
+
+<script type="text/javascript" src="static/js/graph.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+body{
+  background-color:#f0f0f0;
+  color: black;
+  /* font-size: 25px; */
+  font-family: Arial, Helvetica, sans-serif;
+  /* overflow: hidden; */
+}
+.container-bg
+{
+  margin-bottom:10px;
+  padding-top: 0px;
+  background: #530d8a;
+  height: 5vh;
+
+}
+.navbar-custom {
+          background-color: #530d8a;
+      }
+      /* Modify brand and text color */
+
+      .navbar-custom .navbar-brand,
+      .navbar-custom .navbar-text,
+      .navbar-custom .nav-item,
+      .navbar-custom .nav-link {
+          color: white;
+      }
+.container-fluid
+{
+  padding-left: 20px;
+  padding-top: 10px;
+  padding-right: 20px;
+  height: 95vh;
+
+}
+#traffic-graph{
+  background-color: #f0f0f0;
+  border: 1px solid white;
+
+  /* background-color: blue; */
+}
+#delay-graph{
+
+  background-color: #f0f0f0;
+  border: 1px solid white;
+}
+#traffic-table{
+  background-color: #f0f0f0;
+  border: 1px solid white;
+
+  /* background-color: blue; */
+}
+#delay-table{
+
+  background-color: #f0f0f0;
+  border: 1px solid white;
+}
+#info{
+  height: 10vh;
+}
+#main{
+  height: 85vh;
+}
+#graph-header{
+  height: 10vh;
+}
+#main-graph{
+  height: 75vh;
+}
+
+.node {}
+
+.link {  stroke-width: 2px; }
