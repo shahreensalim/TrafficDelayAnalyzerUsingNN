@@ -2,13 +2,13 @@ body{
   background-color:#f0f0f0;
   color: black;
   /* font-size: 25px; */
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: monospace;
   /* overflow: hidden; */
 }
 .container-bg
 {
   margin-bottom:10px;
-  padding-top: 0px;
+  /* padding-top: 0px; */
   background: #530d8a;
   height: 5vh;
 
@@ -33,6 +33,7 @@ body{
 
 }
 #traffic-graph{
+
   background-color: #f0f0f0;
   border: 1px solid white;
 
@@ -61,12 +62,36 @@ body{
   height: 85vh;
 }
 #graph-header{
-  height: 10vh;
+  padding: 10px;
+  text-align: center;
+  color: steelblue;
+  text-decoration-line: underline;
+  text-decoration-style: double;
+  height: 5vh;
+}
+#table-header{
+  padding: 10px;
+  text-align: center;
+  color: steelblue;
+  text-decoration-line: underline;
+  text-decoration-style: double;
+  height: 5vh;
 }
 #main-graph{
-  height: 75vh;
+  height: 80vh;
 }
-
+#main-graph-delay{
+  height: 80vh;
+}
+#main-table{
+  padding:10px;
+}
+#table_data{
+  float:center;
+}
+.btn{
+  margin: 5px;
+}
 .node {}
 
 .link {  stroke-width: 2px; }

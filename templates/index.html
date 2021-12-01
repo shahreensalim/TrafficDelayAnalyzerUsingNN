@@ -26,9 +26,10 @@
   </div>
 
   <div class="container-fluid" >
-      <div class="row" id='info' style='font-size:12px'>
-        Network Topology: Scale Free<br>
-        Other info...
+      <div class="row" id='info' style='font-size:16px'>
+        Network Topology: Star<br>
+        Number of Nodes: 5<br>
+        Link bandwidth: 10 MBPS <br>
       </div>
       <div class="row" id='main'>
 
@@ -44,13 +45,23 @@
               Traffic Matrix
             </div>
             <div class="row" id='main-table'>
+              <div id="table_data">
+              <table id ="traffic_mat" class="table table-striped table-bordered"></table>
+            </div>
+            <button type="button" id ='generateDelay' class="btn btn-primary">Generate Delay</button>
+            <br>
+            <div id="control-center">
+               <input type="text" id="newValue">
+              <button type="button" id ='editLink' class="btn btn-primary">Edit link</button>
+              <button type="button" id='stopGeneration' class="btn btn-primary">Stop Generating Traffic</button>
+            </div>
             </div>
           </div>
         <div class='col-lg-3'id= 'delay-graph'>
           <div class="row" id='graph-header'>
             Delay Graph
           </div>
-          <div class="row" id='main-graph'>
+          <div class="row" id='main-graph-delay'>
           </div>
         </div>
         <div class='col-lg-3'id='delay-table' >
@@ -58,6 +69,9 @@
             Delay Matrix
           </div>
           <div class="row" id='main-table'>
+            <div id="table_data">
+            <table id ="delay_mat" class="table table-striped table-bordered"></table>
+          </div>
           </div>
         </div>
     </div>
