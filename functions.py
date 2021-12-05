@@ -1,6 +1,6 @@
 import numpy as np
 import random
-def generate_data(n):
+def generate_data(n, topo, bw):
     arr = []
     for i in range(n):
         arr.append([])
@@ -8,7 +8,7 @@ def generate_data(n):
             if i==j:
                 x = 0
             else:
-                x = round(random.uniform(0.1, 10.0), 2)
+                x = round(random.uniform(0.1, 10.0), 1)
             arr[i].append(x)
     arr = np.array(arr)
     print(arr.shape)
@@ -46,7 +46,7 @@ def generateDelay(traffic):
     print(d)
     for i in range(d.shape[0]):
         for j in range(d.shape[1]):
-            d[i][j] = round(d[i][j]*1.5/2,2)
+            d[i][j] = round(d[i][j]*1.5/2,1)
     x = convert_graph(d)
     y = convert_json(d)
     return x,y

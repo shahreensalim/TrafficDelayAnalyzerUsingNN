@@ -2,27 +2,66 @@ var traffic_graph, traffic_mat, delay_mat, delay_graph;
 $("#newValue").hide()
 $("#editLink").hide()
 $("#stopGeneration").hide()
-$.ajax({
-  dataType: "json",
-  url: "/get_all_data",
-  success: function(data){
-    traffic_graph = data['traffic_data']
-    traffic_mat = data['traffic_mat']
+var numNodes=5, topo="star", bw=5;
+$("#topo_option").on("change",function(){
+    let val =  $(this).val()
+    if(val == "scalefree")
+        topo = "scalefree"
+    else if(val == "ring")
+        topo = "ring"
+    else
+      topo = "star"
+})
+$("#nodes_option").on("change",function(){
+    let val =  $(this).val()
+    if(val == "five")
+        numNodes = 5
+    else if(val == "ten")
+        numNodes = 10
+    else
+      numNodes = 15
+})
+$("#bw_option").on("change",function(){
+    let val =  $(this).val()
+    if(val == "mbps2")
+        bw = 10
+    else if(val == "mbps3")
+        bw = 15
+    else
+      bw = 5
+})
 
-  },
-  async : false
-
+$("#loadTraffic").click(function(){
+  $.ajax({
+ type : 'POST',
+ url : "/load_traffic",
+ contentType: 'application/json;charset=UTF-8',
+ data : JSON.stringify({'numNodes':numNodes, 'topo':topo, 'bw': bw})
 });
-console.log(traffic_graph)
-console.log(traffic_mat)
+  $.ajax({
+    dataType: "json",
+    url: "/get_all_data",
+    success: function(data){
+      traffic_graph = data['traffic_data']
+      traffic_mat = data['traffic_mat']
+      console.log(traffic_graph)
+      console.log(traffic_mat)
+      update(traffic_graph.links, traffic_graph.nodes, "#main-graph");
+      update_table("#traffic_mat", traffic_mat)
+    },
+    async : true
+
+  });
+});
+
+
 var threshold = 0.5
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
 
 
 
- update(traffic_graph.links, traffic_graph.nodes, "#main-graph");
- update_table("#traffic_mat", traffic_mat)
+
    // d3.json("static/json/graph.json", function (error, graph) {
    //     if (error) throw error;
    //
@@ -52,8 +91,8 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
                'refX':13,
                'refY':0,
                'orient':'auto',
-               'markerWidth':4,
-               'markerHeight':4,
+               'markerWidth':3,
+               'markerHeight':3,
                'xoverflow':'visible'})
            .append('svg:path')
            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
@@ -64,17 +103,19 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
            .force("link", d3.forceLink().id(function (d) {return d.id;}).distance(200).strength(1))
            .force("charge", d3.forceManyBody())
            .force("center", d3.forceCenter(width / 2, height / 2));
+
+           var linkids = []
        link = svg.selectAll(".link")
            .data(links)
            .enter()
            .append("path")
            .attr("class", "link")
-           .attr("stroke", function(d){
+           .style("stroke", function(d){
              if(d.value>=threshold)
-              return "green"
+              return "#999"
               else return "red";
            })
-           .attr("stroke-opacity", function(d){
+           .style("stroke-opacity", function(d){
              return d.value;
            }
          )
@@ -84,14 +125,33 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
              'stroke-opacity': 1,
              'id': function (d, i) {
                if (space == "#main-graph")
-                return 'link' + i
+               {
+                 console.log(typeof d.source)
+                 if(typeof d.source === 'object')
+                  linkids[i] = 'link-' + d.source.id+'-'+d.target.id
+                 else
+                 {
+                   linkids[i] = 'link-' + d.source+'-'+d.target
+                 }
+
+                return linkids[i]
+               }
                else {
-                 return 'dlink'+i
+                 if(typeof d.source === 'object')
+                  linkids[i] = 'dlink-' + d.source.id+'-'+d.target.id
+                 else
+                 {
+                   linkids[i] = 'dlink-' + d.source+'-'+d.target
+                 }
+
+                return linkids[i]
                }
              }
          })
            .attr('marker-end','url(#arrowhead)')
            .on("click", editlink)
+           .on("mouseover", highlightTable)
+           .on("mouseout", unhighlightTable)
 
        link.append("title")
            .text(function (d) {return d.type;});
@@ -109,30 +169,31 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
        //     })
        //     .style("pointer-events", "none");
 
-       var edgelabels = svg.selectAll(".edgelabel")
-           .data(links)
-           .enter()
-           .append('text')
-           .style("pointer-events", "none")
-           .attrs({
-               'class': 'edgelabel',
-               'id': function (d, i) {return 'edgelabel' + i},
-               'font-size': 10,
-               'fill': '#aaa'
-           });
-
-       edgelabels.append('textPath')
-           .attr('xlink:href', function (d, i) {
-              if (space == "#main-graph")
-               return '#link' + i
-              else {
-                return '#dlink'+i
-              }
-             })
-           .style("text-anchor", "middle")
-           .style("pointer-events", "none")
-           .attr("startOffset", "50%")
-           .text(function (d) {return d.value });
+       // var edgelabels = svg.selectAll(".edgelabel")
+       //     .data(links)
+       //     .enter()
+       //     .append('text')
+       //     .style("pointer-events", "none")
+       //     .attrs({
+       //         'class': 'edgelabel',
+       //         'id': function (d, i) {return 'edgelabel' + i},
+       //         'font-size': 10,
+       //         'fill': '#aaa'
+       //     });
+       //
+       // edgelabels.append('textPath')
+       //     .attr('xlink:href', function (d, i) {
+       //
+       //        if (space == "#main-graph")
+       //         return '#'+linkids[i]
+       //        else {
+       //          return '#'+linkids[i]
+       //        }
+       //       })
+       //     .style("text-anchor", "middle")
+       //     .style("pointer-events", "none")
+       //     .attr("startOffset", "50%")
+       //     .text(function (d) {return d.value });
 
        node = svg.selectAll(".node")
            .data(nodes)
@@ -147,7 +208,7 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
            .on("click", stopGeneration);
 
        node.append("circle")
-           .attr("r", 5)
+           .attr("r", 8)
            .style("fill", function (d, i) {return "blue";})
 
        node.append("title")
@@ -185,18 +246,18 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
                   //     return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
                   // });
 
-                  edgelabels.attr('transform', function (d) {
-                      if (d.target.x < d.source.x) {
-                          var bbox = this.getBBox();
-
-                          rx = bbox.x + bbox.width / 2;
-                          ry = bbox.y + bbox.height / 2;
-                          return 'rotate(180 ' + rx + ' ' + ry + ')';
-                      }
-                      else {
-                          return 'rotate(0)';
-                      }
-                  });
+                  // edgelabels.attr('transform', function (d) {
+                  //     if (d.target.x < d.source.x) {
+                  //         var bbox = this.getBBox();
+                  //
+                  //         rx = bbox.x + bbox.width / 2;
+                  //         ry = bbox.y + bbox.height / 2;
+                  //         return 'rotate(180 ' + rx + ' ' + ry + ')';
+                  //     }
+                  //     else {
+                  //         return 'rotate(0)';
+                  //     }
+                  // });
               }
 
               function dragstarted(d) {
@@ -227,7 +288,7 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
        }
 
      }
-
+     console.log(traffic_mat)
      traffic_mat[source-1][source-1][target-1]=value
      update_table("#traffic_mat", traffic_mat)
 
@@ -241,18 +302,18 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
      $("#editLink").show()
      $("#newValue").show()
      var val;
-     $("#editLink").click(function(){
-        val = $("#newValue").val();
-        if( $.isNumeric(val))
-        {
-          update_data(d.source.id, d.target.id, parseInt(val))
-          $("#editLink").hide()
-          $("#newValue").hide()
-        }
-        else {
-          alert("Please input a valid number")
-        }
-     });
+     // $("#editLink").click(function(){
+     //    val = $("#newValue").val();
+     //    if( $.isNumeric(val))
+     //    {
+     //      update_data(d.source.id, d.target.id, parseInt(val))
+     //      $("#editLink").hide()
+     //      $("#newValue").hide()
+     //    }
+     //    else {
+     //      alert("Please input a valid number")
+     //    }
+     // });
 
    }
 
@@ -296,23 +357,23 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
        var tbody = $('<tbody></tbody>');
        row = $('<tr></tr>')
-       rowData = $('<td></td>').addClass('bar').text("Node")
+       rowData = $('<td></td>').addClass('bar').text("")
        row.append(rowData);
        for (var i = 0; i <tableData.length; i++)
        {
 
-            rowData = $('<td></td>').addClass('bar').text(i+1);
+            rowData = $('<td></td>').addClass('bar').attr('id', "col-"+(i+1)).text(i+1);
             row.append(rowData);
        }
        tbody.append(row);
        for (var i = 0; i <tableData.length; i++) {
          row = $('<tr></tr>')
          console.log(tableData[i][i])
-         rowData = $('<td></td>').addClass('bar').text(i+1)
+         rowData = $('<td></td>').addClass('bar').attr('id', "row-"+(i+1)).text(i+1)
          row.append(rowData);
          for(j = 0; j<tableData[i][i].length; j++)
          {
-           rowData = $('<td></td>').addClass('bar').text(tableData[i][i][j]);
+           rowData = $('<td></td>').attr('id', (i+1)+'-'+(j+1)).attr('style', 'text-align:center;').text(tableData[i][i][j]);
            row.append(rowData);
          }
          tbody.append(row);
@@ -321,6 +382,112 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
        console.log("loaded")
 
    }
+   var row, column;
+   $("#traffic_mat").on('click','td',function(e) {
+    var temp =  $(this).attr('id');
+    temp = temp.split("-")
+    row = temp[0]
+    column = temp[1]
+    console.log(row)
+    console.log(column)
+    $("#editLink").show()
+    $('#newValue').val('')
+    $("#newValue").show()
+
+    var val;
+
+
+});
+$("#traffic_mat").on('mouseover','td',function(e) {
+ var temp =  $(this).attr('id');
+ temp = temp.split("-")
+ r= temp[0]
+ c = temp[1]
+
+
+
+ var val;
+ var cell = "#link-"+r+'-'+c
+ d3.select(cell).style("stroke", function(d){
+   return "#FFFF00";
+ })
+
+
+
+});
+
+$("#traffic_mat").on('mouseout','td',function(e) {
+ var temp =  $(this).attr('id');
+ temp = temp.split("-")
+ r = temp[0]
+ c = temp[1]
+
+
+
+ var val;
+ var cell = "#link-"+r+'-'+c
+ d3.select(cell).style("stroke", function(d){
+   console.log(d)
+   if(d.value>=threshold)
+    return "#999"
+    else return "red";
+ })
+
+
+});
+$("#editLink").click(function(){
+
+   val = $("#newValue").val();
+   console.log(val)
+   if( $.isNumeric(val))
+   {
+
+     update_data(row, column, parseInt(val))
+
+     $("#editLink").hide()
+     $("#newValue").hide()
+
+
+   }
+   else {
+     alert("Please input a valid number")
+   }
+});
+function highlightTable(d)
+{
+
+  console.log(d.source.id)
+  console.log(d.target.id)
+  cell = '#'+d.source.id+'-'+d.target.id
+  console.log($(cell).text())
+  $(cell).css('background-color', '#FFFF00')
+  $(cell).css('font-weight', 'bold')
+
+  cell = '#row-'+d.source.id
+  $(cell).css('color', 'steelblue')
+  $(cell).css('font-weight', 'bold')
+  cell = '#col-'+d.target.id
+  $(cell).css('color', 'steelblue')
+  $(cell).css('font-weight', 'bold')
+
+}
+function unhighlightTable(d)
+{
+  console.log(d.source.id)
+  console.log(d.target.id)
+  cell = '#'+d.source.id+'-'+d.target.id
+  console.log($(cell).text())
+  $(cell).css('background-color', "transparent")
+  $(cell).css('font-weight', 'normal')
+
+  cell = '#row-'+d.source.id
+  $(cell).css('color', 'black')
+  $(cell).css('font-weight', 'normal')
+  cell = '#col-'+d.target.id
+  $(cell).css('color', 'black')
+$(cell).css('font-weight', 'normal')
+
+}
 
    $("#generateDelay").click(function(){
      $.ajax({

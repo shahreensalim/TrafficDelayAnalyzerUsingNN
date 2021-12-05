@@ -27,9 +27,34 @@
 
   <div class="container-fluid" >
       <div class="row" id='info' style='font-size:16px'>
-        Network Topology: Star<br>
-        Number of Nodes: 5<br>
-        Link bandwidth: 10 MBPS <br>
+        <div id="options" class="col-lg-8">
+          <span>
+        <label>Network Type</label>
+        <select id="topo_option">
+          <option value="star">Star</option>
+          <option value="ring">Ring</option>
+          <option value="scalefree">Scale Free</option>
+        </select>
+      </span>
+      <span>
+        <label>Number of Nodes:</label>
+        <select id="nodes_option">
+          <option value="five">5</option>
+          <option value="ten">10</option>
+          <option value="fifteen">15</option>
+        </select>
+      </span>
+      <span>
+        <label>Link bandwidth:</label>
+        <select id="bw_option">
+          <option value="mbps1">5</option>
+          <option value="mbps2">10</option>
+          <option value="mbps3">15</option>
+        </select>
+      </span>
+      <span><button type="button" id ='loadTraffic' class="btn btn-primary">Load Traffic Graph</button></span>
+    </div>
+
       </div>
       <div class="row" id='main'>
 
@@ -51,7 +76,7 @@
             <button type="button" id ='generateDelay' class="btn btn-primary">Generate Delay</button>
             <br>
             <div id="control-center">
-               <input type="text" id="newValue">
+               <input type="text" id="newValue" placeholder="Enter new traffic value" value="">
               <button type="button" id ='editLink' class="btn btn-primary">Edit link</button>
               <button type="button" id='stopGeneration' class="btn btn-primary">Stop Generating Traffic</button>
             </div>

@@ -79,12 +79,15 @@ body{
 }
 #main-graph{
   height: 80vh;
+
 }
 #main-graph-delay{
   height: 80vh;
+
 }
 #main-table{
   padding:10px;
+  margin: 5px;
 }
 #table_data{
   float:center;
@@ -92,6 +95,10 @@ body{
 .btn{
   margin: 5px;
 }
+table{
+  table-layout: fixed;
+  width: 100%;
+}
 .node {}
 
-.link {  stroke-width: 2px; }
+.link {  stroke-width: 4px; }
