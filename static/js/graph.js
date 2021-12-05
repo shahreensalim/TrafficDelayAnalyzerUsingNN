@@ -1,3 +1,45 @@
+
+var traffic_threshold, delay_threshold;
+var slider1 = d3
+   .sliderHorizontal()
+   .min(0)
+   .max(10)
+   .step(0.5)
+   .width(250)
+   .displayValue(false)
+   .on('onchange', (val) => {
+     traffic_threshold=val.toFixed(2);
+     d3.select('#value-alternative-handle1').text(traffic_threshold);
+   });
+
+ d3.select('#slider-alternative-handle1')
+   .append('svg')
+   .attr('width', 300)
+   .attr('height', 100)
+   .append('g')
+   .attr('transform', 'translate(30,30)')
+   .call(slider1);
+
+   var slider2 = d3
+      .sliderHorizontal()
+      .min(0)
+      .max(10)
+      .step(0.5)
+      .width(250)
+      .displayValue(false)
+      .on('onchange', (val) => {
+        delay_threshold=val.toFixed(2);
+        d3.select('#value-alternative-handle2').text(delay_threshold);
+      });
+
+    d3.select('#slider-alternative-handle2')
+      .append('svg')
+      .attr('width', 300)
+      .attr('height', 100)
+      .append('g')
+      .attr('transform', 'translate(30,30)')
+      .call(slider2);
+
 var traffic_graph, traffic_mat, delay_mat, delay_graph;
 $("#newValue").hide()
 $("#editLink").hide()
@@ -55,11 +97,13 @@ $("#loadTraffic").click(function(){
 });
 
 
-var threshold = 0.5
+
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
 
 
+
+    console.log(delay_threshold)
 
 
    // d3.json("static/json/graph.json", function (error, graph) {
@@ -68,6 +112,11 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
    // })
 
    function update(links, nodes, space) {
+         // traffic_threshold = Number(d3.select('#value-alternative-handle1').text())
+         // delay_threshold = Number(d3.select('#value-alternative-handle2').text())
+
+         console.log(traffic_threshold)
+         console.log(delay_threshold)
      var node,  link;
 
 
@@ -91,8 +140,8 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
                'refX':13,
                'refY':0,
                'orient':'auto',
-               'markerWidth':3,
-               'markerHeight':3,
+               'markerWidth':5,
+               'markerHeight':5,
                'xoverflow':'visible'})
            .append('svg:path')
            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
@@ -111,9 +160,25 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
            .append("path")
            .attr("class", "link")
            .style("stroke", function(d){
-             if(d.value>=threshold)
-              return "#999"
-              else return "red";
+             console.log(space)
+             if(space=="#main-graph")
+             {
+               console.log(d.value)
+               //console.log(traffic_threshold)
+               if(d.value>=traffic_threshold)
+               {
+                 return "red"
+               }
+              else return "none";
+             }
+            else {
+              console.log(d.value)
+              if(d.value>=delay_threshold)
+              {
+                return "red"
+              }
+             else return "none";
+            }
            })
            .style("stroke-opacity", function(d){
              return d.value;
@@ -215,7 +280,8 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
            .text(function (d) {return d.id;});
 
        node.append("text")
-           .attr("dy", -3)
+           .attr("dy", -5)
+           .attr("dx", +5)
            .text(function (d) {return d.id;});
 
        simulation
@@ -359,21 +425,47 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
        row = $('<tr></tr>')
        rowData = $('<td></td>').addClass('bar').text("")
        row.append(rowData);
+       var c, r;
+       if(space == "#traffic_mat"){
+         c = "col1-"
+         r = "row1-"
+       }
+
+        else {
+        c = "col2-"
+        r = "row2-"
+      }
        for (var i = 0; i <tableData.length; i++)
        {
 
-            rowData = $('<td></td>').addClass('bar').attr('id', "col-"+(i+1)).text(i+1);
+            rowData = $('<td></td>').addClass('bar').attr('id', c+(i+1)).text(i+1);
             row.append(rowData);
        }
        tbody.append(row);
        for (var i = 0; i <tableData.length; i++) {
          row = $('<tr></tr>')
          console.log(tableData[i][i])
-         rowData = $('<td></td>').addClass('bar').attr('id', "row-"+(i+1)).text(i+1)
+         rowData = $('<td></td>').addClass('bar').attr('id', r+(i+1)).text(i+1)
          row.append(rowData);
          for(j = 0; j<tableData[i][i].length; j++)
          {
-           rowData = $('<td></td>').attr('id', (i+1)+'-'+(j+1)).attr('style', 'text-align:center;').text(tableData[i][i][j]);
+           if(space=="#traffic_mat")
+           {
+             if(tableData[i][i][j]>=traffic_threshold)
+              rowData = $('<td></td>').attr('id', 't-'+(i+1)+'-'+(j+1)).attr('style', 'text-align:center; color:red;').text(tableData[i][i][j]);
+              else {
+            rowData = $('<td></td>').attr('id', 't-'+(i+1)+'-'+(j+1)).attr('style', 'text-align:center; color:black;').text(tableData[i][i][j]);
+          }
+           }
+          else {
+            if(tableData[i][i][j]>=delay_threshold)
+             rowData = $('<td></td>').attr('id', 'd-'+(i+1)+'-'+(j+1)).attr('style', 'text-align:center; color:red;').text(tableData[i][i][j]);
+         else {
+           rowData = $('<td></td>').attr('id', 'd-'+(i+1)+'-'+(j+1)).attr('style', 'text-align:center; color:black;').text(tableData[i][i][j]);
+         }
+          }
+
+
            row.append(rowData);
          }
          tbody.append(row);
@@ -409,12 +501,15 @@ $("#traffic_mat").on('mouseover','td',function(e) {
  var val;
  var cell = "#link-"+r+'-'+c
  d3.select(cell).style("stroke", function(d){
-   return "#FFFF00";
+   return "limegreen";
  })
-
+ $(this).css('background-color', '#FFFF00')
+ $(this).css('font-weight', 'bold')
 
 
 });
+
+
 
 $("#traffic_mat").on('mouseout','td',function(e) {
  var temp =  $(this).attr('id');
@@ -423,15 +518,60 @@ $("#traffic_mat").on('mouseout','td',function(e) {
  c = temp[1]
 
 
-
  var val;
  var cell = "#link-"+r+'-'+c
  d3.select(cell).style("stroke", function(d){
    console.log(d)
-   if(d.value>=threshold)
-    return "#999"
-    else return "red";
+   if(d.value>=traffic_threshold)
+    return "red"
+    else return "none";
  })
+
+ $(this).css('background-color', 'transparent')
+ $(this).css('font-weight', 'normal')
+
+
+});
+
+$("#delay_mat").on('mouseover','td',function(e) {
+ var temp =  $(this).attr('id');
+ temp = temp.split("-")
+ r= temp[0]
+ c = temp[1]
+
+
+
+ var val;
+ var cell = "#dlink-"+r+'-'+c
+ d3.select(cell).style("stroke", function(d){
+   return "limegreen";
+ })
+ $(this).css('background-color', '#FFFF00')
+ $(this).css('font-weight', 'bold')
+
+
+});
+
+
+
+$("#delay_mat").on('mouseout','td',function(e) {
+ var temp =  $(this).attr('id');
+ temp = temp.split("-")
+ r = temp[0]
+ c = temp[1]
+
+
+ var val;
+ var cell = "#dlink-"+r+'-'+c
+ d3.select(cell).style("stroke", function(d){
+   console.log(d)
+   if(d.value>=delay_threshold)
+    return "red"
+    else return "none";
+ })
+
+ $(this).css('background-color', 'transparent')
+ $(this).css('font-weight', 'normal')
 
 
 });
@@ -458,15 +598,27 @@ function highlightTable(d)
 
   console.log(d.source.id)
   console.log(d.target.id)
-  cell = '#'+d.source.id+'-'+d.target.id
+  cell = '#t-'+d.source.id+'-'+d.target.id
   console.log($(cell).text())
   $(cell).css('background-color', '#FFFF00')
   $(cell).css('font-weight', 'bold')
 
-  cell = '#row-'+d.source.id
+  cell = '#d-'+d.source.id+'-'+d.target.id
+  console.log($(cell).text())
+  $(cell).css('background-color', '#FFFF00')
+  $(cell).css('font-weight', 'bold')
+
+  cell = '#row1-'+d.source.id
   $(cell).css('color', 'steelblue')
   $(cell).css('font-weight', 'bold')
-  cell = '#col-'+d.target.id
+  cell = '#col1-'+d.target.id
+  $(cell).css('color', 'steelblue')
+  $(cell).css('font-weight', 'bold')
+
+  cell = '#row2-'+d.source.id
+  $(cell).css('color', 'steelblue')
+  $(cell).css('font-weight', 'bold')
+  cell = '#col2-'+d.target.id
   $(cell).css('color', 'steelblue')
   $(cell).css('font-weight', 'bold')
 
@@ -475,16 +627,27 @@ function unhighlightTable(d)
 {
   console.log(d.source.id)
   console.log(d.target.id)
-  cell = '#'+d.source.id+'-'+d.target.id
+  cell = '#t-'+d.source.id+'-'+d.target.id
+  console.log($(cell).text())
+  $(cell).css('background-color', "transparent")
+  $(cell).css('font-weight', 'normal')
+  cell = '#d-'+d.source.id+'-'+d.target.id
   console.log($(cell).text())
   $(cell).css('background-color', "transparent")
   $(cell).css('font-weight', 'normal')
 
-  cell = '#row-'+d.source.id
+  cell = '#row1-'+d.source.id
   $(cell).css('color', 'black')
   $(cell).css('font-weight', 'normal')
-  cell = '#col-'+d.target.id
+  cell = '#col1-'+d.target.id
   $(cell).css('color', 'black')
+$(cell).css('font-weight', 'normal')
+
+cell = '#row2-'+d.source.id
+$(cell).css('color', 'black')
+$(cell).css('font-weight', 'normal')
+cell = '#col2-'+d.target.id
+$(cell).css('color', 'black')
 $(cell).css('font-weight', 'normal')
 
 }

@@ -32,6 +32,14 @@ body{
   height: 95vh;
 
 }
+#instructions{
+  border: 1px solid white;
+  font-size: 14px;
+}
+#options{
+  border: 1px solid white;
+  font-size: 18px;
+}
 #traffic-graph{
 
   background-color: #f0f0f0;
@@ -54,6 +62,10 @@ body{
 
   background-color: #f0f0f0;
   border: 1px solid white;
+}
+label{
+  color: steelblue;
+  font-weight: bold;
 }
 #info{
   height: 10vh;
@@ -97,8 +109,9 @@ body{
 }
 table{
   table-layout: fixed;
+  font-size: 14px;
   width: 100%;
 }
 .node {}
 
-.link {  stroke-width: 4px; }
+.link {  stroke-width: 2px; }
