@@ -1,10 +1,10 @@
 
-var traffic_threshold, delay_threshold;
+var traffic_threshold=0, delay_threshold=0;
 var slider1 = d3
    .sliderHorizontal()
    .min(0)
-   .max(10)
-   .step(0.5)
+   .max(4)
+   .step(0.1)
    .width(250)
    .displayValue(false)
    .on('onchange', (val) => {
@@ -24,7 +24,7 @@ var slider1 = d3
       .sliderHorizontal()
       .min(0)
       .max(10)
-      .step(0.5)
+      .step(5)
       .width(250)
       .displayValue(false)
       .on('onchange', (val) => {
@@ -48,11 +48,11 @@ var numNodes=5, topo="star", bw=5;
 $("#topo_option").on("change",function(){
     let val =  $(this).val()
     if(val == "scalefree")
-        topo = "scalefree"
+        topo = "ScaleFree"
     else if(val == "ring")
-        topo = "ring"
+        topo = "Ring"
     else
-      topo = "star"
+      topo = "Star"
 })
 $("#nodes_option").on("change",function(){
     let val =  $(this).val()
@@ -87,23 +87,32 @@ $("#loadTraffic").click(function(){
       traffic_graph = data['traffic_data']
       traffic_mat = data['traffic_mat']
       console.log(traffic_graph)
-      console.log(traffic_mat)
+      //console.log(traffic_mat)
       update(traffic_graph.links, traffic_graph.nodes, "#main-graph");
       update_table("#traffic_mat", traffic_mat)
     },
     async : true
 
   });
+
+
 });
 
+$("#updateThreshold").click(function(){
+  update(traffic_graph.links, traffic_graph.nodes, "#main-graph");
+  update_table("#traffic_mat", traffic_mat)
 
+  update(delay_graph.links, delay_graph.nodes, "#main-graph-delay");
+  update_table("#delay_mat", delay_mat)
+
+});
 
 var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
 
 
 
-    console.log(delay_threshold)
+    //console.log(delay_threshold)
 
 
    // d3.json("static/json/graph.json", function (error, graph) {
@@ -112,18 +121,20 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
    // })
 
    function update(links, nodes, space) {
+     //console.log(links)
+     //console.log(nodes)
          // traffic_threshold = Number(d3.select('#value-alternative-handle1').text())
          // delay_threshold = Number(d3.select('#value-alternative-handle2').text())
 
-         console.log(traffic_threshold)
-         console.log(delay_threshold)
+         //console.log(traffic_threshold)
+         //console.log(delay_threshold)
      var node,  link;
 
 
       width = $(space).width(),
       height = $(space).height();
-      console.log(width)
-      console.log(height)
+      //console.log(width)
+      //console.log(height)
 
       var margin = {top: 20, right: 20, bottom: 40, left: 80},
       width = width - margin.left - margin.right,
@@ -160,11 +171,11 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
            .append("path")
            .attr("class", "link")
            .style("stroke", function(d){
-             console.log(space)
+             //console.log(space)
              if(space=="#main-graph")
              {
-               console.log(d.value)
-               //console.log(traffic_threshold)
+               //console.log(d.value)
+               ////console.log(traffic_threshold)
                if(d.value>=traffic_threshold)
                {
                  return "red"
@@ -172,7 +183,7 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
               else return "none";
              }
             else {
-              console.log(d.value)
+              //console.log(d.value)
               if(d.value>=delay_threshold)
               {
                 return "red"
@@ -191,7 +202,7 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
              'id': function (d, i) {
                if (space == "#main-graph")
                {
-                 console.log(typeof d.source)
+                 //console.log(typeof d.source)
                  if(typeof d.source === 'object')
                   linkids[i] = 'link-' + d.source.id+'-'+d.target.id
                  else
@@ -213,7 +224,27 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
                }
              }
          })
-           .attr('marker-end','url(#arrowhead)')
+           .attr('marker-end',function(d){
+             //return 'url(#arrowhead)'
+             if(space=="#main-graph")
+             {
+               //console.log(d.value)
+               ////console.log(traffic_threshold)
+               if(d.value>=traffic_threshold)
+               {
+                 return 'url(#arrowhead)'
+               }
+              else return "none";
+             }
+            else {
+              //console.log(d.value)
+              if(d.value>=delay_threshold)
+              {
+                return 'url(#arrowhead)'
+              }
+             else return "none";
+            }
+           })
            .on("click", editlink)
            .on("mouseover", highlightTable)
            .on("mouseout", unhighlightTable)
@@ -340,21 +371,21 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
 
    function update_data(source, target, value)
    {
-     console.log(source)
-     console.log(target)
-     console.log(value)
+     //console.log(source)
+     //console.log(target)
+     //console.log(value)
      for(i=0; i<traffic_graph['links'].length; i++)
      {
-       console.log(traffic_graph['links'][i])
+       //console.log(traffic_graph['links'][i])
        if(traffic_graph['links'][i]['source']['id']==source && traffic_graph['links'][i]['target']['id']==target)
        {
-         console.log("hey")
+         //console.log("hey")
          traffic_graph['links'][i]['value'] = value
          break
        }
 
      }
-     console.log(traffic_mat)
+     //console.log(traffic_mat)
      traffic_mat[source-1][source-1][target-1]=value
      update_table("#traffic_mat", traffic_mat)
 
@@ -368,18 +399,7 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
      $("#editLink").show()
      $("#newValue").show()
      var val;
-     // $("#editLink").click(function(){
-     //    val = $("#newValue").val();
-     //    if( $.isNumeric(val))
-     //    {
-     //      update_data(d.source.id, d.target.id, parseInt(val))
-     //      $("#editLink").hide()
-     //      $("#newValue").hide()
-     //    }
-     //    else {
-     //      alert("Please input a valid number")
-     //    }
-     // });
+
 
    }
 
@@ -391,10 +411,10 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
        source = d.id
        for(i=0; i<traffic_graph['links'].length; i++)
        {
-         console.log(traffic_graph['links'][i])
+         //console.log(traffic_graph['links'][i])
          if(traffic_graph['links'][i]['source']['id']==source)
          {
-           console.log("hey")
+           //console.log("hey")
            traffic_graph['links'][i]['value'] = 0
 
          }
@@ -444,7 +464,7 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
        tbody.append(row);
        for (var i = 0; i <tableData.length; i++) {
          row = $('<tr></tr>')
-         console.log(tableData[i][i])
+         //console.log(tableData[i][i])
          rowData = $('<td></td>').addClass('bar').attr('id', r+(i+1)).text(i+1)
          row.append(rowData);
          for(j = 0; j<tableData[i][i].length; j++)
@@ -471,17 +491,17 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
          tbody.append(row);
        }
        table.append(tbody)
-       console.log("loaded")
+       //console.log("loaded")
 
    }
    var row, column;
    $("#traffic_mat").on('click','td',function(e) {
     var temp =  $(this).attr('id');
     temp = temp.split("-")
-    row = temp[0]
-    column = temp[1]
-    console.log(row)
-    console.log(column)
+    row = temp[1]
+    column = temp[2]
+    //console.log(row)
+    //console.log(column)
     $("#editLink").show()
     $('#newValue').val('')
     $("#newValue").show()
@@ -493,8 +513,8 @@ var colors = d3.scaleOrdinal(d3.schemeCategory10);
 $("#traffic_mat").on('mouseover','td',function(e) {
  var temp =  $(this).attr('id');
  temp = temp.split("-")
- r= temp[0]
- c = temp[1]
+ r= temp[1]
+ c = temp[2]
 
 
 
@@ -514,14 +534,14 @@ $("#traffic_mat").on('mouseover','td',function(e) {
 $("#traffic_mat").on('mouseout','td',function(e) {
  var temp =  $(this).attr('id');
  temp = temp.split("-")
- r = temp[0]
- c = temp[1]
+ r = temp[1]
+ c = temp[2]
 
 
  var val;
  var cell = "#link-"+r+'-'+c
  d3.select(cell).style("stroke", function(d){
-   console.log(d)
+   //console.log(d)
    if(d.value>=traffic_threshold)
     return "red"
     else return "none";
@@ -536,8 +556,8 @@ $("#traffic_mat").on('mouseout','td',function(e) {
 $("#delay_mat").on('mouseover','td',function(e) {
  var temp =  $(this).attr('id');
  temp = temp.split("-")
- r= temp[0]
- c = temp[1]
+ r= temp[1]
+ c = temp[2]
 
 
 
@@ -557,14 +577,14 @@ $("#delay_mat").on('mouseover','td',function(e) {
 $("#delay_mat").on('mouseout','td',function(e) {
  var temp =  $(this).attr('id');
  temp = temp.split("-")
- r = temp[0]
- c = temp[1]
+ r = temp[1]
+ c = temp[2]
 
 
  var val;
  var cell = "#dlink-"+r+'-'+c
  d3.select(cell).style("stroke", function(d){
-   console.log(d)
+   //console.log(d)
    if(d.value>=delay_threshold)
     return "red"
     else return "none";
@@ -578,11 +598,11 @@ $("#delay_mat").on('mouseout','td',function(e) {
 $("#editLink").click(function(){
 
    val = $("#newValue").val();
-   console.log(val)
+   //console.log(val)
    if( $.isNumeric(val))
    {
 
-     update_data(row, column, parseInt(val))
+     update_data(row, column, parseFloat(val))
 
      $("#editLink").hide()
      $("#newValue").hide()
@@ -596,15 +616,15 @@ $("#editLink").click(function(){
 function highlightTable(d)
 {
 
-  console.log(d.source.id)
-  console.log(d.target.id)
+  //console.log(d.source.id)
+  //console.log(d.target.id)
   cell = '#t-'+d.source.id+'-'+d.target.id
-  console.log($(cell).text())
+  //console.log($(cell).text())
   $(cell).css('background-color', '#FFFF00')
   $(cell).css('font-weight', 'bold')
 
   cell = '#d-'+d.source.id+'-'+d.target.id
-  console.log($(cell).text())
+  //console.log($(cell).text())
   $(cell).css('background-color', '#FFFF00')
   $(cell).css('font-weight', 'bold')
 
@@ -625,14 +645,14 @@ function highlightTable(d)
 }
 function unhighlightTable(d)
 {
-  console.log(d.source.id)
-  console.log(d.target.id)
+  //console.log(d.source.id)
+  //console.log(d.target.id)
   cell = '#t-'+d.source.id+'-'+d.target.id
-  console.log($(cell).text())
+  //console.log($(cell).text())
   $(cell).css('background-color', "transparent")
   $(cell).css('font-weight', 'normal')
   cell = '#d-'+d.source.id+'-'+d.target.id
-  console.log($(cell).text())
+  //console.log($(cell).text())
   $(cell).css('background-color', "transparent")
   $(cell).css('font-weight', 'normal')
 
@@ -652,12 +672,30 @@ $(cell).css('font-weight', 'normal')
 
 }
 
+function convert_traffic_graph(t)
+{
+  var res = {}
+  var nodes = [], links=[];
+  for(var i =0; i<t['nodes'].length; i++)
+  {
+    nodes.push({'id': t['nodes'][i]['id']})
+  }
+  for(var i =0; i<t['links'].length; i++)
+  {
+    links.push({'source': t['links'][i]['source']['id'],'target': t['links'][i]['target']['id'],'value': t['links'][i]['value']})
+  }
+  res['nodes'] = nodes
+  res['links'] = links
+  return res
+}
    $("#generateDelay").click(function(){
+     console.log(traffic_graph)
+     traffic_graph_converted = convert_traffic_graph(traffic_graph)
      $.ajax({
     type : 'POST',
     url : "/send_traffic",
     contentType: 'application/json;charset=UTF-8',
-    data : JSON.stringify({'traffic_mat':traffic_mat})
+    data : JSON.stringify({'traffic_mat':traffic_mat, 'traffic_graph':traffic_graph_converted})
   });
   $.ajax({
     dataType: "json",
@@ -665,7 +703,21 @@ $(cell).css('font-weight', 'normal')
     success: function(data){
       delay_graph = data['delay_data']
       delay_mat = data['delay_mat']
+      delay_max = data['delay_max']
+      console.log(delay_max)
+      step = 0.1
+      if(delay_max<=1){
+        delay_max = 1
+        step = 0.1
+      }
+      else {
+        step = delay_max/10
+      }
 
+
+
+      d3.select('#slider-alternative-handle2')
+        .call(slider2.min(0).max(delay_max).step(step));
       update(delay_graph.links, delay_graph.nodes, "#main-graph-delay");
       update_table("#delay_mat", delay_mat)
     },
